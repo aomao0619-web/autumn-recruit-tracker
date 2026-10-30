@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>秋招投递助手 · 27届校招信息汇总</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234f46e5'/%3E%3Ctext y='.9em' x='50%25' text-anchor='middle' font-size='64'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E" />
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --card: #ffffff;
+    --primary: #4f46e5;
+    --primary-light: #eef2ff;
+    --text: #1f2328;
+    --text-sub: #6b7280;
+    --border: #e5e7eb;
+    --green: #16a34a;
+    --green-bg: #dcfce7;
+    --orange: #ea580c;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5; font-size: 14px;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* Header */
+  header {
+    background: linear-gradient(120deg, #4f46e5, #7c3aed);
+    color: #fff; padding: 28px 24px 24px;
+  }
+  .header-inner { max-width: 1240px; margin: 0 auto; }
+  header h1 { font-size: 24px; font-weight: 700; letter-spacing: .5px; }
+  header p { opacity: .85; margin-top: 6px; font-size: 13px; }
+  .stats { display: flex; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
+  .stat {
+    background: rgba(255,255,255,.15); backdrop-filter: blur(6px);
+    padding: 12px 20px; border-radius: 12px; min-width: 120px;
+  }
+  .stat .num { font-size: 24px; font-weight: 700; }
+  .stat .lbl { font-size: 12px; opacity: .85; margin-top: 2px; }
+
+  /* Layout */
+  .container { max-width: 1240px; margin: 0 auto; padding: 20px 24px 60px; display: flex; gap: 20px; align-items: flex-start; }
+  .sidebar {
+    width: 268px; flex-shrink: 0; background: var(--card); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 18px; position: sticky; top: 16px;
+    max-height: calc(100vh - 32px); overflow-y: auto;
+  }
+  .main { flex: 1; min-width: 0; }
+
+  /* Search */
+  .searchbar { background: var(--card); border-radius: 14px; box-shadow: var(--shadow); padding: 14px 16px; margin-bottom: 16px; display:flex; gap:12px; align-items:center; flex-wrap: wrap;}
+  .searchbar input[type=text] {
+    flex: 1; min-width: 220px; border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; font-size: 14px; outline: none;
+  }
+  .searchbar input:focus { border-color: var(--primary); }
+  .sort-select { border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:13px; background:#fff; cursor:pointer;}
+
+  /* Filter groups */
+  .filter-group { margin-bottom: 20px; }
+  .filter-group h3 {
+    font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    border: 1px solid var(--border); background: #fff; color: var(--text-sub);
+    padding: 5px 11px; border-radius: 20px; font-size: 12px; cursor: pointer;
+    transition: all .12s; user-select: none; white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--primary); color: var(--primary); }
+  .chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .chip .cnt { opacity: .6; margin-left: 3px; font-size: 11px; }
+  .chip.active .cnt { opacity: .85; }
+
+  .seg { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .seg button {
+    flex: 1; border: none; background: #fff; padding: 8px 6px; font-size: 12px; cursor: pointer; color: var(--text-sub);
+  }
+  .seg button.active { background: var(--primary); color: #fff; }
+
+  .reset-btn {
+    width: 100%; padding: 9px; border: 1px solid var(--border); background:#fff; border-radius: 10px;
+    color: var(--text-sub); cursor: pointer; font-size: 13px; margin-top: 4px;
+  }
+  .reset-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+  /* Result list */
+  .result-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: var(--text-sub); font-size: 13px; }
+  .result-head b { color: var(--primary); font-size: 15px; }
+
+  .card {
+    background: var(--card); border-radius: 12px; box-shadow: var(--shadow);
+    padding: 16px 18px; margin-bottom: 12px; border: 1px solid transparent; transition: box-shadow .15s;
+  }
+  .card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+  .card.submitted { border-color: var(--green); background: linear-gradient(0deg,#fff,#f6fef9); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .company { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badge-sub {
+    background: var(--green-bg); color: var(--green); font-size: 11px; font-weight: 700;
+    padding: 2px 9px; border-radius: 20px; display:inline-flex; align-items:center; gap:3px;
+  }
+  .tag {
+    font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--primary-light); color: var(--primary); font-weight: 600;
+  }
+  .tag.gray { background: #f3f4f6; color: #6b7280; }
+  .tag.orange { background: #fff7ed; color: var(--orange); }
+  /* 投递级别徽章 */
+  .lvl { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; letter-spacing: .5px; }
+  .lvl-S { background: linear-gradient(135deg,#f59e0b,#ef4444); color: #fff; }
+  .lvl-A { background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; }
+  .lvl-B { background: #e5e7eb; color: #6b7280; }
+  .chip.lvl-chip-S.active { background: #ef4444; border-color: #ef4444; }
+  .chip.lvl-chip-A.active { background: #6366f1; border-color: #6366f1; }
+  /* 公告时间醒目徽章 */
+  .date-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: linear-gradient(135deg,#0ea5e9,#2563eb); color: #fff;
+    font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 7px;
+    letter-spacing: .3px; box-shadow: 0 1px 3px rgba(37,99,235,.3);
+  }
+  .date-badge.fresh { background: linear-gradient(135deg,#f43f5e,#e11d48); box-shadow: 0 1px 3px rgba(225,29,72,.35); }
+  .date-badge .new-dot {
+    background: #fff; color: #e11d48; font-size: 9px; font-weight: 800;
+    padding: 0 4px; border-radius: 4px; margin-left: 2px;
+  }
+  /* 收藏按钮 */
+  .fav-btn {
+    border: none; background: transparent; cursor: pointer; font-size: 19px;
+    line-height: 1; padding: 2px 4px; filter: grayscale(1); opacity: .45; transition: all .15s;
+  }
+  .fav-btn:hover { opacity: 1; transform: scale(1.15); }
+  .fav-btn.on { filter: none; opacity: 1; }
+  .card.faved { border-color: #f59e0b; background: linear-gradient(0deg,#fff,#fffbeb); }
+  /* 不合适标记 */
+  .unfit-btn {
+    border: none; background: transparent; cursor: pointer; font-size: 15px;
+    line-height: 1; padding: 2px 4px; opacity: .35; transition: all .15s;
+  }
+  .unfit-btn:hover { opacity: 1; transform: scale(1.15); }
+  .unfit-btn.on { opacity: 1; }
+  .card.unfit {
+    background: #f3f4f6 !important; border-color: #d1d5db !important;
+    opacity: .72; filter: grayscale(.85);
+  }
+  .card.unfit .company { color: #6b7280; text-decoration: line-through; text-decoration-color: #9ca3af; }
+  .card.unfit .btn-apply { background: #9ca3af; }
+  .badge-unfit {
+    background: #e5e7eb; color: #6b7280; font-size: 11px; font-weight: 700;
+    padding: 2px 9px; border-radius: 20px;
+  }
+  /* 投递/撤销 按钮 */
+  .btn-done {
+    background: var(--green-bg); color: var(--green); border: 1px solid #86efac;
+    padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .btn-done:hover { background: #bbf7d0; }
+  .btn-undo {
+    background: #fff; color: var(--text-sub); border: 1px solid var(--border);
+    padding: 7px 12px; border-radius: 8px; font-size: 12.5px; cursor: pointer;
+  }
+  .btn-undo:hover { border-color: var(--orange); color: var(--orange); }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; color: var(--text-sub); font-size: 12.5px; }
+  .meta-row .m { display: inline-flex; align-items: center; gap: 4px; }
+  .pos { margin-top: 10px; font-size: 13px; color: #374151; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .card-actions { margin-top: 12px; display: flex; gap: 10px; align-items:center;}
+  .btn-apply {
+    background: var(--primary); color: #fff; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .btn-apply:hover { background: #4338ca; }
+  .btn-link { color: var(--text-sub); font-size: 12.5px; padding: 7px 2px; }
+  .btn-link:hover { color: var(--primary); }
+
+  /* 生效中的筛选条件提示条 */
+  .active-bar {
+    background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px;
+    padding: 11px 14px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+  }
+  .active-bar .ttl { font-size: 12.5px; font-weight: 700; color: var(--orange); }
+  .active-bar .fchip {
+    background: #fff; border: 1px solid #fed7aa; color: #c2410c;
+    font-size: 12px; padding: 3px 9px 3px 10px; border-radius: 20px;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .active-bar .fchip b { font-weight: 700; }
+  .active-bar .fchip .x { cursor: pointer; font-weight: 700; opacity: .55; }
+  .active-bar .fchip .x:hover { opacity: 1; color: #dc2626; }
+  .clear-all {
+    background: var(--orange); color: #fff; border: none;
+    padding: 6px 13px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+  .active-bar .clear-all { margin-left: auto; }
+  .clear-all:hover { background: #c2410c; }
+
+  .pagination { display: flex; justify-content: center; gap: 6px; margin-top: 22px; flex-wrap: wrap; }
+  .pagination button {
+    min-width: 34px; height: 34px; border: 1px solid var(--border); background: #fff; border-radius: 8px;
+    cursor: pointer; font-size: 13px; color: var(--text);
+  }
+  .pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .pagination button:disabled { opacity: .4; cursor: not-allowed; }
+
+  .empty { text-align: center; padding: 60px 20px; color: var(--text-sub); }
+  .loading { text-align: center; padding: 80px; color: var(--text-sub); }
+
+  .mobile-filter-toggle { display: none; }
+  @media (max-width: 920px) {
+    .container { flex-direction: column; }
+    .sidebar { width: 100%; position: static; max-height: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <h1>🎯 秋招投递助手</h1>
+    <p>2027届秋招信息汇总 · 双表合并去重 · 已过截止自动剔除 · 按公告时间倒序 · 支持收藏</p>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+
+<div class="container">
+  <aside class="sidebar" id="sidebar">
+    <div class="filter-group">
+      <h3>📮 投递状态 <span id="subCount" style="color:#16a34a;font-weight:700;font-size:11px"></span></h3>
+      <div class="seg" id="seg-submit">
+        <button data-v="all" class="active">全部</button>
+        <button data-v="yes">✅ 已投递</button>
+        <button data-v="no">未投递</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <h3>⭐ 我的收藏 <span id="favCount" style="color:#f59e0b;font-weight:700"></span></h3>
+      <div class="seg" id="seg-fav">
+        <button data-v="all" class="active">全部</button>
+        <button data-v="yes">🌟 只看收藏</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <h3>🚫 不合适 <span id="unfitCount" style="color:#6b7280;font-weight:700"></span></h3>
+      <div class="seg" id="seg-unfit">
+        <button data-v="hide" class="active">隐藏</button>
+        <button data-v="only">🚫 只看不合适</button>
+        <button data-v="all">全部显示</button>
+      </div>
+    </div>
+    <div class="filter-group" id="fg-level"><h3>⭐ 投递级别</h3><div class="chips"></div></div>
+    <div class="filter-group" id="fg-nature"><h3>🏢 企业性质</h3><div class="chips"></div></div>
+    <div class="filter-group" id="fg-batch"><h3>📅 招聘类型</h3><div class="chips"></div></div>
+    <div class="filter-group" id="fg-degree"><h3>📖 学历要求</h3><div class="chips"></div></div>
+    <div class="filter-group" id="fg-exam"><h3>✍️ 笔试</h3><div class="chips"></div></div>
+    <div class="filter-group" id="fg-industry"><h3>🏭 行业分类</h3><div class="chips"></div></div>
+    <div class="filter-group" id="fg-location"><h3>📍 工作地点</h3><div class="chips"></div></div>
+    <button class="reset-btn" id="resetBtn">↺ 重置所有筛选</button>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--border)">
+      <h3 style="font-size:13px;font-weight:700;margin-bottom:8px">💾 标记备份</h3>
+      <div style="display:flex;gap:8px">
+        <button class="reset-btn" id="exportBtn" style="margin:0;flex:1">导出</button>
+        <button class="reset-btn" id="importBtn" style="margin:0;flex:1">导入</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json" style="display:none" />
+      <p style="font-size:11px;color:var(--text-sub);margin-top:7px;line-height:1.45">
+        标记存在本机浏览器中，数据更新不会清除。建议偶尔导出备份。
+      </p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="searchbar">
+      <input type="text" id="search" placeholder="🔍 搜索公司名称 / 招聘岗位 / 行业…" />
+      <select class="sort-select" id="sortSel">
+        <option value="newest">🕐 最新公告优先</option>
+        <option value="level">⭐ 级别优先(S→A→B)</option>
+        <option value="submitted">已投递优先</option>
+        <option value="company">按公司名</option>
+      </select>
+    </div>
+    <div id="activeFilters"></div>
+    <div class="result-head">
+      <div>共找到 <b id="resultCount">0</b> 个岗位<span id="ofTotal" style="color:var(--text-sub)"></span></div>
+      <div id="pageInfo"></div>
+    </div>
+    <div id="list"><div class="loading">⏳ 正在加载数据…</div></div>
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<script>
+const PAGE_SIZE = 20;
+const NOW_TS = Date.now();
+let DATA = [], META = null;
+
+// ---------- 公司名归一化（与后端 merge 保持一致，保证数据更新后标记不丢） ----------
+function normKey(s) {
+  if (!s) return '';
+  return String(s).trim()
+    .replace(/\s+/g, '')
+    .replace(/[（）()【】\[\]·、,，。.\-—_/]/g, '')
+    .replace(/(股份)?有限公司$|公司$|集团$/, '')
+    .toLowerCase();
+}
+
+// ---------- 收藏（localStorage 持久化，按归一化公司名存储） ----------
+const FAV_KEY = 'autumn_fav_companies_v1';
+let FAVS = new Set();
+function loadFavs() {
+  try { FAVS = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]')); }
+  catch (e) { FAVS = new Set(); }
+}
+function saveFavs() {
+  try { localStorage.setItem(FAV_KEY, JSON.stringify([...FAVS])); } catch (e) {}
+}
+function toggleFav(company) {
+  const k = normKey(company);
+  if (FAVS.has(k)) FAVS.delete(k); else FAVS.add(k);
+  saveFavs(); updateFavCount();
+}
+function isFaved(company) { return FAVS.has(normKey(company)); }
+function updateFavCount() {
+  const el = document.getElementById('favCount');
+  if (el) el.textContent = FAVS.size ? `(${FAVS.size})` : '';
+}
+
+// ---------- 不合适标记（localStorage 持久化，按归一化公司名存储） ----------
+const UNFIT_KEY = 'autumn_unfit_companies_v1';
+let UNFITS = new Set();
+function loadUnfits() {
+  try { UNFITS = new Set(JSON.parse(localStorage.getItem(UNFIT_KEY) || '[]')); }
+  catch (e) { UNFITS = new Set(); }
+}
+function saveUnfits() {
+  try { localStorage.setItem(UNFIT_KEY, JSON.stringify([...UNFITS])); } catch (e) {}
+}
+function toggleUnfit(company) {
+  const k = normKey(company);
+  if (UNFITS.has(k)) UNFITS.delete(k);
+  else { UNFITS.add(k); FAVS.delete(k); saveFavs(); updateFavCount(); }
+  saveUnfits(); updateUnfitCount();
+}
+function isUnfitCo(company) { return UNFITS.has(normKey(company)); }
+function updateUnfitCount() {
+  const el = document.getElementById('unfitCount');
+  if (el) el.textContent = UNFITS.size ? `(${UNFITS.size})` : '';
+}
+
+// ---------- 我已投递标记（localStorage 持久化，按归一化公司名存储） ----------
+const SUB_KEY = 'autumn_submitted_companies_v1';
+let SUBS = new Set();
+function loadSubs() {
+  try { SUBS = new Set(JSON.parse(localStorage.getItem(SUB_KEY) || '[]')); }
+  catch (e) { SUBS = new Set(); }
+}
+function saveSubs() {
+  try { localStorage.setItem(SUB_KEY, JSON.stringify([...SUBS])); } catch (e) {}
+}
+function markSubmitted(company, on) {
+  const k = normKey(company);
+  if (on) { SUBS.add(k); UNFITS.delete(k); saveUnfits(); updateUnfitCount(); }
+  else SUBS.delete(k);
+  saveSubs(); updateSubCount();
+}
+function isSubmitted(r) { return r.submitted || SUBS.has(normKey(r.company)); }
+function updateSubCount() {
+  const el = document.getElementById('subCount');
+  if (el) el.textContent = SUBS.size ? `(我标记 ${SUBS.size})` : '';
+}
+
+// ---------- 旧格式标记迁移（原来按原始公司名存储 → 归一化），只做一次 ----------
+const MIGRATED_KEY = 'autumn_marks_migrated_v2';
+function migrateMarks() {
+  if (localStorage.getItem(MIGRATED_KEY)) return;
+  // 迁移前先做一份原始备份，确保任何意外都能找回
+  try {
+    localStorage.setItem('autumn_marks_backup_before_v2', JSON.stringify({
+      ts: new Date().toISOString(),
+      favs: [...FAVS], unfits: [...UNFITS], subs: [...SUBS],
+    }));
+  } catch (e) {}
+  const conv = (set) => {
+    const out = new Set();
+    for (const v of set) { const k = normKey(v); if (k) out.add(k); }
+    return out;
+  };
+  FAVS = conv(FAVS); UNFITS = conv(UNFITS); SUBS = conv(SUBS);
+  saveFavs(); saveUnfits(); saveSubs();
+  try { localStorage.setItem(MIGRATED_KEY, new Date().toISOString()); } catch (e) {}
+}
+
+// ---------- 标记备份：导出 / 导入 ----------
+function exportMarks() {
+  const payload = {
+    app: 'autumn-apply-helper',
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    favs: [...FAVS], unfits: [...UNFITS], subs: [...SUBS],
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `秋招标记备份_${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+}
+function importMarks(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const p = JSON.parse(reader.result);
+      const add = (set, arr) => { for (const v of (arr || [])) { const k = normKey(v); if (k) set.add(k); } };
+      // 合并导入（不覆盖已有标记）
+      add(FAVS, p.favs); add(UNFITS, p.unfits); add(SUBS, p.subs);
+      saveFavs(); saveUnfits(); saveSubs();
+      updateFavCount(); updateUnfitCount(); updateSubCount();
+      render();
+      alert(`导入成功：收藏 ${FAVS.size} · 不合适 ${UNFITS.size} · 已投递 ${SUBS.size}`);
+    } catch (e) { alert('导入失败：文件格式不正确'); }
+  };
+  reader.readAsText(file);
+}
+
+// ---------- 会话记忆：筛选条件 + 页码 + 滚动位置 ----------
+const SESSION_KEY = 'autumn_session_v1';
+let sessionTimer = null;
+function saveSession() {
+  clearTimeout(sessionTimer);
+  sessionTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(SESSION_KEY, JSON.stringify({
+        search: state.search, submit: state.submit, fav: state.fav, unfit: state.unfit,
+        sort: state.sort, page: state.page,
+        level: [...state.level], nature: [...state.nature], batch: [...state.batch],
+        degree: [...state.degree], exam: [...state.exam],
+        industry: [...state.industry], location: [...state.location],
+        scrollY: window.scrollY || 0,
+      }));
+    } catch (e) {}
+  }, 120);
+}
+function restoreSession() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (e) { s = null; }
+  if (!s) return 0;
+  state.search = s.search || '';
+  state.submit = s.submit || 'all';
+  state.fav = s.fav || 'all';
+  state.unfit = s.unfit || 'hide';
+  state.sort = s.sort || 'newest';
+  state.page = s.page || 1;
+  for (const k of ['level', 'nature', 'batch', 'degree', 'exam', 'industry', 'location']) {
+    state[k] = new Set(Array.isArray(s[k]) ? s[k] : []);
+  }
+  // 回填 UI 控件
+  const si = document.getElementById('search'); if (si) si.value = state.search;
+  const ss = document.getElementById('sortSel'); if (ss) ss.value = state.sort;
+  const segs = { 'seg-submit': state.submit, 'seg-fav': state.fav, 'seg-unfit': state.unfit };
+  for (const [id, val] of Object.entries(segs)) {
+    document.querySelectorAll(`#${id} button`).forEach(b => b.classList.toggle('active', b.dataset.v === val));
+  }
+  const groups = { 'fg-level': 'level', 'fg-nature': 'nature', 'fg-batch': 'batch', 'fg-degree': 'degree', 'fg-exam': 'exam', 'fg-industry': 'industry', 'fg-location': 'location' };
+  for (const [id, key] of Object.entries(groups)) {
+    document.querySelectorAll(`#${id} .chip`).forEach(c => {
+      c.classList.toggle('active', state[key].has(decodeURIComponent(c.dataset.v)));
+    });
+  }
+  return s.scrollY || 0;
+}
+
+let state = {
+  search: '', submit: 'all', fav: 'all', unfit: 'hide', sort: 'newest',
+  level: new Set(), nature: new Set(), batch: new Set(),
+  degree: new Set(), exam: new Set(), industry: new Set(), location: new Set(),
+  page: 1,
+};
+
+async function load() {
+  const [d, m] = await Promise.all([
+    fetch('data.json').then(r => r.json()),
+    fetch('meta.json').then(r => r.json()),
+  ]);
+  DATA = d; META = m;
+  loadFavs(); loadUnfits(); loadSubs();
+  migrateMarks();                      // 旧格式标记一次性迁移（含备份）
+  updateFavCount(); updateUnfitCount(); updateSubCount();
+  renderStats();
+  buildFilters();
+  bindEvents();
+  const savedY = restoreSession();   // 恢复上次筛选 + 页码
+  render();
+  // 恢复上次滚动位置（列表渲染后）
+  if (savedY > 0) {
+    requestAnimationFrame(() => {
+      window.scrollTo(0, savedY);
+      setTimeout(() => window.scrollTo(0, savedY), 60);
+    });
+  }
+  // 滚动时记录位置
+  let scrollTimer = null;
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(saveSession, 180);
+  }, { passive: true });
+  window.addEventListener('beforeunload', saveSession);
+}
+
+function renderStats() {
+  const lv = Object.fromEntries(META.levels);
+  const liveSub = DATA.filter(isSubmitted).length;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="num">${META.total.toLocaleString()}</div><div class="lbl">在投岗位(2027)</div></div>
+    <div class="stat"><div class="num" style="color:#bbf7d0">${liveSub}</div><div class="lbl">✅ 已投递</div></div>
+    <div class="stat"><div class="num" style="color:#fde047">${FAVS.size}</div><div class="lbl">⭐ 我的收藏</div></div>
+    <div class="stat"><div class="num" style="color:#fde68a">${lv.S || 0}</div><div class="lbl">S级头部</div></div>
+    <div class="stat"><div class="num" style="color:#ddd6fe">${lv.A || 0}</div><div class="lbl">A级优质</div></div>
+    <div class="stat"><div class="num">${lv.B || 0}</div><div class="lbl">B级其他</div></div>`;
+}
+
+const LEVEL_LABEL = { S: 'S · 头部大厂/顶级央企', A: 'A · 优质企业', B: 'B · 其他' };
+function chipHtml(k, v) { return `<div class="chip" data-v="${encodeURIComponent(k)}">${k}<span class="cnt">${v}</span></div>`; }
+function levelChipHtml(k, v) { return `<div class="chip lvl-chip-${k}" data-v="${encodeURIComponent(k)}">${LEVEL_LABEL[k] || k}<span class="cnt">${v}</span></div>`; }
+function buildFilters() {
+  document.querySelector('#fg-level .chips').innerHTML = META.levels.map(([k, v]) => levelChipHtml(k, v)).join('');
+  const map = {
+    'fg-nature': META.natures, 'fg-batch': META.batches,
+    'fg-degree': META.degrees, 'fg-exam': META.exams,
+    'fg-industry': META.industries.slice(0, 18), 'fg-location': META.locations.slice(0, 24),
+  };
+  for (const [id, list] of Object.entries(map)) {
+    document.querySelector(`#${id} .chips`).innerHTML = list.map(([k, v]) => chipHtml(k, v)).join('');
+  }
+}
+
+function bindEvents() {
+  document.getElementById('search').addEventListener('input', e => { state.search = e.target.value.trim().toLowerCase(); state.page = 1; render(); });
+  document.getElementById('sortSel').addEventListener('change', e => { state.sort = e.target.value; render({ scrollToTop: true }); });
+  document.getElementById('seg-submit').addEventListener('click', e => {
+    if (e.target.tagName !== 'BUTTON') return;
+    document.querySelectorAll('#seg-submit button').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active'); state.submit = e.target.dataset.v; state.page = 1; render({ scrollToTop: true });
+  });
+  document.getElementById('seg-fav').addEventListener('click', e => {
+    if (e.target.tagName !== 'BUTTON') return;
+    document.querySelectorAll('#seg-fav button').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active'); state.fav = e.target.dataset.v; state.page = 1; render({ scrollToTop: true });
+  });
+  document.getElementById('seg-unfit').addEventListener('click', e => {
+    if (e.target.tagName !== 'BUTTON') return;
+    document.querySelectorAll('#seg-unfit button').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active'); state.unfit = e.target.dataset.v; state.page = 1; render({ scrollToTop: true });
+  });
+  // 收藏 / 不合适 / 投递 按钮（事件委托）
+  document.getElementById('list').addEventListener('click', e => {
+    const doneBtn = e.target.closest('.done-btn');
+    const undoBtn = e.target.closest('.undo-btn');
+    if (doneBtn || undoBtn) {
+      e.preventDefault();
+      const btn = doneBtn || undoBtn;
+      markSubmitted(decodeURIComponent(btn.dataset.c), !!doneBtn);
+      render();
+      return;
+    }
+    const favBtn = e.target.closest('.fav-btn');
+    const unfitBtn = e.target.closest('.unfit-btn');
+    if (!favBtn && !unfitBtn) return;
+    e.preventDefault();
+    const btn = favBtn || unfitBtn;
+    const company = decodeURIComponent(btn.dataset.c);
+    if (unfitBtn) {
+      toggleUnfit(company);
+      // 标记后在"隐藏"或"只看不合适"模式下需要重新渲染（移出/移入模块）
+      if (state.unfit !== 'all') { render(); return; }
+      const on = isUnfitCo(company);
+      document.querySelectorAll(`.unfit-btn[data-c="${btn.dataset.c}"]`).forEach(b => {
+        b.classList.toggle('on', on);
+        b.textContent = on ? '🚫' : '⃠';
+        b.title = on ? '取消不合适标记' : '标记为不合适';
+        const card = b.closest('.card');
+        if (card) { card.classList.toggle('unfit', on); if (on) card.classList.remove('faved'); }
+      });
+      return;
+    }
+    toggleFav(company);
+    if (state.fav === 'yes') { render(); return; }
+    const on = isFaved(company);
+    document.querySelectorAll(`.fav-btn[data-c="${btn.dataset.c}"]`).forEach(b => {
+      b.classList.toggle('on', on);
+      b.textContent = on ? '⭐' : '☆';
+      b.title = on ? '取消收藏' : '收藏该公司';
+      const card = b.closest('.card'); if (card) card.classList.toggle('faved', on);
+    });
+  });
+  const groups = { 'fg-level': 'level', 'fg-nature': 'nature', 'fg-batch': 'batch', 'fg-degree': 'degree', 'fg-exam': 'exam', 'fg-industry': 'industry', 'fg-location': 'location' };
+  for (const [id, key] of Object.entries(groups)) {
+    document.getElementById(id).addEventListener('click', e => {
+      const chip = e.target.closest('.chip'); if (!chip) return;
+      const v = decodeURIComponent(chip.dataset.v);
+      if (state[key].has(v)) { state[key].delete(v); chip.classList.remove('active'); }
+      else { state[key].add(v); chip.classList.add('active'); }
+      state.page = 1; render({ scrollToTop: true });
+    });
+  }
+  document.getElementById('resetBtn').addEventListener('click', () => resetAllFilters());
+  document.getElementById('exportBtn').addEventListener('click', exportMarks);
+  document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+  document.getElementById('importFile').addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) importMarks(f);
+    e.target.value = '';
+  });
+}
+
+function matchSet(set, vals) {
+  if (set.size === 0) return true;
+  const arr = Array.isArray(vals) ? vals : [vals];
+  for (const v of set) { if (arr.includes(v)) return true; }
+  return false;
+}
+
+// ---------- 生效中的筛选条件：展示 / 单个移除 / 全部清除 ----------
+const CHIP_GROUPS = { level: 'fg-level', nature: 'fg-nature', batch: 'fg-batch', degree: 'fg-degree', exam: 'fg-exam', industry: 'fg-industry', location: 'fg-location' };
+const GROUP_LABEL = { level: '级别', nature: '性质', batch: '类型', degree: '学历', exam: '笔试', industry: '行业', location: '地点' };
+const SEG_LABEL = {
+  submit: { yes: '只看已投递', no: '只看未投递' },
+  fav: { yes: '只看收藏' },
+  unfit: { only: '只看不合适', all: '显示不合适' },
+};
+
+function activeFilterList() {
+  const out = [];
+  if (state.search) out.push({ kind: 'search', label: '搜索', value: state.search });
+  for (const [key, labels] of Object.entries(SEG_LABEL)) {
+    const v = state[key];
+    if (labels[v]) out.push({ kind: 'seg', key, label: labels[v], value: '' });
+  }
+  for (const key of Object.keys(CHIP_GROUPS)) {
+    for (const v of state[key]) out.push({ kind: 'chip', key, label: GROUP_LABEL[key], value: v });
+  }
+  return out;
+}
+
+function resetAllFilters() {
+  state.search = ''; state.submit = 'all'; state.fav = 'all'; state.unfit = 'hide';
+  state.sort = 'newest'; state.page = 1;
+  for (const key of Object.keys(CHIP_GROUPS)) state[key] = new Set();
+  document.getElementById('search').value = '';
+  document.getElementById('sortSel').value = 'newest';
+  document.querySelectorAll('.chip.active').forEach(c => c.classList.remove('active'));
+  for (const id of ['seg-submit', 'seg-fav', 'seg-unfit']) {
+    document.querySelectorAll(`#${id} button`).forEach((b, i) => b.classList.toggle('active', i === 0));
+  }
+  render({ scrollToTop: true });
+}
+
+function removeFilter(f) {
+  if (f.kind === 'search') {
+    state.search = '';
+    document.getElementById('search').value = '';
+  } else if (f.kind === 'seg') {
+    const def = f.key === 'unfit' ? 'hide' : 'all';
+    state[f.key] = def;
+    document.querySelectorAll(`#seg-${f.key} button`).forEach(b => b.classList.toggle('active', b.dataset.v === def));
+  } else {
+    state[f.key].delete(f.value);
+    const box = document.getElementById(CHIP_GROUPS[f.key]);
+    if (box) box.querySelectorAll('.chip').forEach(c => {
+      if (decodeURIComponent(c.dataset.v) === f.value) c.classList.remove('active');
+    });
+  }
+  state.page = 1;
+  render({ scrollToTop: true });
+}
+
+function renderActiveFilters() {
+  const box = document.getElementById('activeFilters');
+  const list = activeFilterList();
+  if (!list.length) { box.innerHTML = ''; ACTIVE_CACHE = []; return; }
+  ACTIVE_CACHE = list;
+  const chips = list.map((f, i) => {
+    const txt = f.value ? `${f.label}：<b>${esc(f.value)}</b>` : `<b>${esc(f.label)}</b>`;
+    return `<span class="fchip">${txt}<span class="x" data-i="${i}" title="移除此条件">✕</span></span>`;
+  }).join('');
+  box.innerHTML = `<div class="active-bar">
+    <span class="ttl">🔎 筛选生效中</span>${chips}
+    <button class="clear-all" id="clearAllBtn">清除全部筛选</button>
+  </div>`;
+  box.querySelector('#clearAllBtn').addEventListener('click', () => resetAllFilters());
+  box.querySelectorAll('.fchip .x').forEach(x => x.addEventListener('click', () => {
+    removeFilter(ACTIVE_CACHE[Number(x.dataset.i)]);
+  }));
+}
+let ACTIVE_CACHE = [];
+
+function filterData() {
+  return DATA.filter(r => {
+    if (state.submit === 'yes' && !isSubmitted(r)) return false;
+    if (state.submit === 'no' && isSubmitted(r)) return false;
+    if (state.fav === "yes" && !isFaved(r.company)) return false;
+    const isUnfit = isUnfitCo(r.company);
+    if (state.unfit === 'hide' && isUnfit) return false;
+    if (state.unfit === 'only' && !isUnfit) return false;
+    if (state.level.size && !state.level.has(r.level)) return false;
+    if (state.nature.size && !state.nature.has(r.nature)) return false;
+    if (!matchSet(state.batch, r.batches)) return false;
+    if (!matchSet(state.degree, r.degree)) return false;
+    if (state.exam.size && !state.exam.has(r.exam)) return false;
+    if (!matchSet(state.industry, r.industries)) return false;
+    if (!matchSet(state.location, r.locations)) return false;
+    if (state.search) {
+      const hay = (r.company + ' ' + r.position + ' ' + r.industries.join(' ')).toLowerCase();
+      if (!hay.includes(state.search)) return false;
+    }
+    return true;
+  });
+}
+
+function sortData(arr) {
+  const LO = { S: 0, A: 1, B: 2 };
+  const uf = (x) => (isUnfitCo(x.company) ? 1 : 0); // 不合适的沉到最后
+  let cmp;
+  if (state.sort === 'newest') cmp = (a, b) => b.updatedTs - a.updatedTs;
+  else if (state.sort === 'level') cmp = (a, b) => (LO[a.level] - LO[b.level]) || (b.updatedTs - a.updatedTs);
+  else if (state.sort === 'submitted') cmp = (a, b) => ((isSubmitted(b) ? 1 : 0) - (isSubmitted(a) ? 1 : 0)) || (b.updatedTs - a.updatedTs);
+  else if (state.sort === 'company') cmp = (a, b) => a.company.localeCompare(b.company, 'zh');
+  else cmp = () => 0;
+  return arr.slice().sort((a, b) => (uf(a) - uf(b)) || cmp(a, b));
+}
+
+function render(opts) {
+  const scrollToTop = opts && opts.scrollToTop;
+  let list = sortData(filterData());
+  renderStats();
+  renderActiveFilters();
+  document.getElementById('resultCount').textContent = list.length.toLocaleString();
+  const ofTotal = document.getElementById('ofTotal');
+  if (ofTotal) ofTotal.textContent = (DATA.length && list.length !== DATA.length) ? `（共 ${DATA.length.toLocaleString()} 条）` : '';
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if (state.page > totalPages) state.page = totalPages;
+  const start = (state.page - 1) * PAGE_SIZE;
+  const pageItems = list.slice(start, start + PAGE_SIZE);
+  document.getElementById('pageInfo').textContent = list.length ? `第 ${state.page} / ${totalPages} 页` : '';
+
+  const listEl = document.getElementById('list');
+  if (!pageItems.length) {
+    const hasFilters = activeFilterList().length > 0;
+    listEl.innerHTML = `<div class="empty">
+      <div style="font-size:34px;margin-bottom:8px">😶</div>
+      <div style="font-weight:600;color:var(--text)">没有符合条件的岗位</div>
+      ${hasFilters
+        ? `<p style="margin-top:7px">当前有筛选条件在生效，已把全部 ${DATA.length.toLocaleString()} 个岗位过滤掉了。</p>
+           <button class="clear-all" id="emptyClearBtn" style="margin-top:13px;padding:9px 20px;font-size:13px">↺ 清除所有筛选，查看全部岗位</button>`
+        : '<p style="margin-top:7px">数据可能尚未加载完成，请稍后重试。</p>'}
+    </div>`;
+    const b = document.getElementById('emptyClearBtn');
+    if (b) b.addEventListener('click', () => resetAllFilters());
+    document.getElementById('pagination').innerHTML = '';
+    saveSession();
+    return;
+  }
+
+  listEl.innerHTML = pageItems.map(cardHtml).join('');
+  renderPagination(totalPages);
+  if (scrollToTop) window.scrollTo({ top: 0, behavior: 'smooth' });
+  saveSession();
+}
+
+function esc(s) { return (s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function cardHtml(r) {
+  const done = isSubmitted(r);
+  const mineOnly = SUBS.has(normKey(r.company)) && !r.submitted;
+  const subBadge = done ? `<span class="badge-sub">✅ 已投递${mineOnly ? '' : ''}</span>` : '';
+  const lvlBadge = `<span class="lvl lvl-${r.level}">${r.level}级</span>`;
+  const natureTag = r.nature ? `<span class="tag">${esc(r.nature)}</span>` : '';
+  const batchTags = r.batches.map(b => `<span class="tag gray">${esc(b)}</span>`).join('');
+  const examTag = r.exam ? `<span class="tag orange">${esc(r.exam)}</span>` : '';
+  const loc = r.locations.slice(0, 6).join(' · ') + (r.locations.length > 6 ? ' 等' : '');
+  const ind = r.industries.slice(0, 3).join(' / ');
+  const metaItems = [];
+  if (loc) metaItems.push(`<span class="m">📍 ${esc(loc)}</span>`);
+  if (ind) metaItems.push(`<span class="m">🏭 ${esc(ind)}</span>`);
+  if (r.degree.length) metaItems.push(`<span class="m">🎓 ${esc(r.degree.join('/'))}</span>`);
+  if (r.deadline) metaItems.push(`<span class="m">⏰ ${esc(r.deadline)}</span>`);
+  const posLine = r.position ? `<div class="pos">💼 ${esc(r.position)}</div>` : '';
+  const cEnc = encodeURIComponent(r.company);
+  const applyBtn = r.link
+    ? `<a class="btn-apply apply-link" data-c="${cEnc}" href="${esc(r.link)}" target="_blank" rel="noopener">${done ? '再次打开 →' : '立即投递 →'}</a>`
+    : '';
+  const doneBtn = done
+    ? `<button class="btn-undo undo-btn" data-c="${cEnc}" title="撤销已投递标记">↺ 撤销已投递</button>`
+    : `<button class="btn-done done-btn" data-c="${cEnc}" title="标记为已投递">✅ 标记已投递</button>`;
+  const annBtn = (r.announceLink && r.announceLink !== r.link) ? `<a class="btn-link" href="${esc(r.announceLink)}" target="_blank" rel="noopener">查看公告</a>` : '';
+  const remark = r.remark ? `<div class="meta-row"><span class="m" style="color:#ea580c">💬 ${esc(r.remark)}</span></div>` : '';
+  // 公告时间醒目徽章：7天内标 NEW
+  const isFresh = r.updatedTs > 0 && (NOW_TS - r.updatedTs) <= 7 * 86400000;
+  const dateBadge = r.updated
+    ? `<span class="date-badge ${isFresh ? 'fresh' : ''}">🕐 ${esc(r.updated)}${isFresh ? '<span class="new-dot">NEW</span>' : ''}</span>`
+    : '';
+  const isUnfit = isUnfitCo(r.company);
+  const isFav = isFaved(r.company) && !isUnfit;
+  const favBtn = `<button class="fav-btn ${isFav ? 'on' : ''}" data-c="${encodeURIComponent(r.company)}" title="${isFav ? '取消收藏' : '收藏该公司'}">${isFav ? '⭐' : '☆'}</button>`;
+  const unfitBtn = `<button class="unfit-btn ${isUnfit ? 'on' : ''}" data-c="${encodeURIComponent(r.company)}" title="${isUnfit ? '取消不合适标记' : '标记为不合适'}">${isUnfit ? '🚫' : '⃠'}</button>`;
+  const unfitBadge = isUnfit ? '<span class="badge-unfit">🚫 不合适</span>' : '';
+  return `<div class="card ${done ? 'submitted' : ''} ${isFav ? 'faved' : ''} ${isUnfit ? 'unfit' : ''}">
+    <div class="card-top">
+      <div class="company">${favBtn}${unfitBtn}${lvlBadge} ${esc(r.company)} ${subBadge}${unfitBadge}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center">${dateBadge}${natureTag}${batchTags}${examTag}</div>
+    </div>
+    ${posLine}
+    <div class="meta-row">${metaItems.join('')}</div>
+    ${remark}
+    <div class="card-actions">${applyBtn}${doneBtn}${annBtn}</div>
+  </div>`;
+}
+
+function renderPagination(totalPages) {
+  const p = state.page; const el = document.getElementById('pagination');
+  let html = `<button ${p === 1 ? 'disabled' : ''} data-p="${p - 1}">‹</button>`;
+  const pages = new Set([1, totalPages, p, p - 1, p + 1, p - 2, p + 2]);
+  const sorted = [...pages].filter(x => x >= 1 && x <= totalPages).sort((a, b) => a - b);
+  let prev = 0;
+  for (const pg of sorted) {
+    if (pg - prev > 1) html += `<button disabled>…</button>`;
+    html += `<button class="${pg === p ? 'active' : ''}" data-p="${pg}">${pg}</button>`;
+    prev = pg;
+  }
+  html += `<button ${p === totalPages ? 'disabled' : ''} data-p="${p + 1}">›</button>`;
+  el.innerHTML = html;
+  el.querySelectorAll('button[data-p]').forEach(b => b.addEventListener('click', () => {
+    const np = parseInt(b.dataset.p); if (np >= 1 && np <= totalPages) { state.page = np; render({ scrollToTop: true }); }
+  }));
+}
+
+load();
+</script>
+</body>
+</html>
